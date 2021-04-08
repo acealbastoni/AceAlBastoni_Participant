@@ -1,80 +1,47 @@
-/*
-gets the emails from all files then puts them in "Emails" and 'Public' List files
-*/
-function write_To_Emails_and_Public_List_Trigger() {
-  var values = Object.values(AceAlBastoni.EmailsFileId);
-  var emails = new Array();
-  for (var fileId of values) {
-    emails = emails.concat((AceAlBastoni.getContent(fileId)));
-    emails.push(AceAlBastoni.getContent(fileId));
-  }
-  emails = emails.toString();
-  emails = emails.match(/[.\w-]+@([\w-]+\.)+[\w-]+/g);
-  //emails = emails.map(item => item.toLowerCase());
-  emails = AceAlBastoni.unique(emails);
-  AceAlBastoni.rename(emailsFileId, "Emails" + AceAlBastoni.getNamePostfix());
-  AceAlBastoni.setContent(emails, emailsFileId);
-  AceAlBastoni.setContent(emails, AceAlBastoni.PublicFileId['List']);
-  console.log(emails.length);
-  Updates_Number_Of_New_Emails_Trigger();
-  Updates_Emails_2_Trigger();
-}
-
-
-//█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████	
-// TriggerLevel #1
-////Written on 11 jan 2021 
-function update_Public_JSON() {
-  let values = Object.values(AceAlBastoni.JsonFileId);
-  values = values.filter(id => id);
-  var newJ = {}
-  for (var id of values) {
-    var accountName = AceAlBastoni.getKeyByValue(AceAlBastoni.JsonFileId, id)
-    var temp = AceAlBastoni.getJsonFromFileOnDrive(id);
-    console.log("Json From : " + accountName + " : " + (Object.keys(temp)).length);
-    newJ = { ...newJ, ...temp };
-  }
-  var length = (Object.keys(newJ)).length;
-  console.log(length);
-
-  //Update the name of the file then 
-  // --> delete the keys that should be from the removed emails 
-  newJ = deleteRemoved_keys_From_Json_(newJ);
-  length = (Object.keys(newJ)).length;
-  AceAlBastoni.rename(AceAlBastoni.PublicFileId['JSON'], "Public JSON" + AceAlBastoni.getNamePostfix() + " " + length);
-  AceAlBastoni.setJsonObjectOnFileOnDrive(newJ, AceAlBastoni.PublicFileId['JSON']);
-  console.log(length);
+//That trigger which Updates the File which is called : EmailsFile of Current Account:
+function DailyMail_Java_Developer_Mohamed_MailTrigger(){
+  var emails = (DriveApp.getFileById(emailsFileId).getBlob().getDataAsString())
+  .match(/[.\w-]+@([\w-]+\.)+[\w-]+/g);
+  emails = emails ? emails : []; 
+  //------------ get All Threads 
+  var threads = GmailApp.getInboxThreads(/*Number(AceAlBastoni.getStart())*/0,500);
+  console.log(threads.length);
+  var allMessages = AceAlBastoni.getNewAllMessages(threads);
+  allMessages = ((allMessages.toString()).match(/[.\w-]+@([\w-]+\.)+[\w-]+/g));
+  emails = emails.concat(allMessages);
+  emails= emails.map(function(item){try{return item.toLowerCase();}catch(e){}});
+  emails= emails.filter(e => AceAlBastoni.isValidEmail(e));
+  AceAlBastoni.rename(emailsFileId,"Emails"+AceAlBastoni.getNamePostfix());
+  AceAlBastoni.setContent(AceAlBastoni.unique(emails),emailsFileId); 
 }
 //█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████	
-//Written on 12 jan 2021 
-function sortEmails_Trigger() {
-  var Emails_Object_SortedByFileId = '1k3czRE7-VhsnuOmSALKpEoD1wpNyUi1G';
-  /*var values = Object.values(Crateriea);
-  var random = Math.floor(Math.random() * values.length);
-  var sortionType =values[random];*/
-  var sortionType = Crateriea['timestamp'];
+//update_ObjectStation_Trigger2
+//written on:  4 jan 2021
+function Update_ObjectStation_Trigger() {
+  var threads = GmailApp.getInboxThreads(0, 500);
+  var jsonFromEmails = AceAlBastoni.getNewAllMessagesss_Local(threads,account);
+  var jsonFromFile =AceAlBastoni.getJsonFromFileOnDrive(objectStationID);
+  var newJson = { ...jsonFromEmails, ...jsonFromFile }
+  AceAlBastoni.setJsonObjectOnFileOnDrive(newJson, objectStationID);
+  var emailsCount = Object.keys(newJson).length;
+  var name = "ObjectStation" + AceAlBastoni.getNamePostfix() + " _" + emailsCount;
+  AceAlBastoni.rename(objectStationID, name);
+ }
 
-  var theJson = AceAlBastoni.getJsonFromFileOnDrive(AceAlBastoni.PublicFileId['JSON']);
-  var emailsArray = AceAlBastoni.getListOfEmailsObjectsSortedBy(theJson, sortionType);
-  // indexing 
-  let ICounter = 0;
-  emailsArray = emailsArray.map(
-    item => { item['emailNo'] = ICounter; ICounter++; item['timestamp'] = AceAlBastoni._convertDate(item['timestamp']); return item; }
-  );
-  var emailsCount = emailsArray.length;
-  AceAlBastoni.setJsonObjectOnFileOnDrive({ "emails": emailsArray }, Emails_Object_SortedByFileId)
-  var name = "Sorted Emails By: SortedBy_ " + sortionType + " " + AceAlBastoni.getNamePostfix() + " _" + emailsCount;
-  AceAlBastoni.rename(Emails_Object_SortedByFileId, name);
-}
 //█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████	
-//Written on 12 jan 2021 
+////written on:  4 jan 2021
 //not used 
-function archive() {
-  console.log(new Date().getTime());
-console.log(DriveApp.getFileById("1WO-yRJROb3Bzkr1GQu5k-CosbLAV6kKWImtNpsefKa8-l3Sxdcyb7eAL").makeCopy().setName("arch V1 test ace").getId());
+function sortEmails_Trigger() {
+  var Emails_Object_SortedBy = '1WAvYxu72DcOulMBDcMB3Wml1xO4GMzRV';
+  //var sortionType = Crateriea.emailAddress;
+  var values = Object.values(Crateriea);
+  var random = Math.floor(Math.random() * values.length);
+  var sortionType =values[random];// Crateriea.timestamp;
 
- /* return
-  console.log(DriveApp.getFileById(AceAlBastoni.PublicFileId['JSON']).makeCopy().setName("arch V1").getId());
-*/
+  var theJson = AceAlBastoni.getJsonFromFileOnDrive(objectStationID)
+  var emailsArray = AceAlBastoni.getListOfEmailsObjectsSortedBy(theJson, sortionType);
+  var emailsCount = emailsArray.length;
+  AceAlBastoni.setJsonObjectOnFileOnDrive({ "emails": emailsArray }, Emails_Object_SortedBy)
+  var name = "Sorted Emails By: SortedBy_ " + sortionType + " " + AceAlBastoni.getNamePostfix() + " _" + emailsCount;
+  AceAlBastoni.rename(Emails_Object_SortedBy, name);
 }
-
