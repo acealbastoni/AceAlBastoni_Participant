@@ -30,9 +30,8 @@ function Update_ObjectStation_Trigger() {
 
 //█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████	
 ////written on:  4 jan 2021
-//not used 
 function sortEmails_Trigger() {
-  var Emails_Object_SortedBy = '1WAvYxu72DcOulMBDcMB3Wml1xO4GMzRV';
+  var Emails_Object_SortedBy = '1fdsWAfdsvYxfdsu72fdsDcOulMBDcMfdB3Wml1xO4GMzRVfds'; /// it is a Dummy ID 
   //var sortionType = Crateriea.emailAddress;
   var values = Object.values(Crateriea);
   var random = Math.floor(Math.random() * values.length);
