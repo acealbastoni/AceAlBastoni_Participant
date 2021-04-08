@@ -44,3 +44,11 @@ function sortEmails_Trigger() {
   var name = "Sorted Emails By: SortedBy_ " + sortionType + " " + AceAlBastoni.getNamePostfix() + " _" + emailsCount;
   AceAlBastoni.rename(Emails_Object_SortedBy, name);
 }
+
+
+//█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████	 
+//Creates Local Spread Sheet For First Time Only once.
+function createLocal_Spreadsheet() {
+  AceAlBastoni.createLocal_Spreadsheet(account);
+ }
+
